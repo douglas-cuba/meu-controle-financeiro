@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Controle Multi-Cartões</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Definindo nossa paleta de cores e fontes como variáveis */
+        :root {
+            --cor-primaria: #00875a; /* Azul principal para botões e links */
+			--cor-primaria-hover: #2ea67d;
+            --cor-sucesso: #006442;  /* Verde para feedback positivo */
+            --cor-perigo: #de350b;   /* Vermelho para exclusão */
+            --cor-fundo: #113428;   /* Cinza muito claro para o fundo da página */
+            --cor-superficie: #ffffff; /* Branco para os containers */
+            --cor-texto-principal: #113428; /* Azul escuro para textos */
+            --cor-texto-secundario: #6b778c; /* Cinza para textos secundários */
+            --cor-borda: #dfe1e6;
+            --sombra-suave: 0 4px 6px -1px rgba(23, 43, 77, 0.1), 0 2px 4px -1px rgba(23, 43, 77, 0.06);
+            --fonte-principal: 'Inter', sans-serif;
+        }
+
+        /* Estilos Gerais */
+        body {
+            font-family: var(--fonte-principal);
+            max-width: 900px;
+            margin: auto;
+            padding: 25px;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto-principal);
+        }
+
+        h1 { color: #2ea67d
+		}
+		
+		h2, h3 {
+            color: var(--cor-texto-principal);
+            font-weight: 600;
+        }
+
+        /* Estrutura e Containers */
+        .container {
+            background-color: var(--cor-superficie);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--sombra-suave);
+            margin-bottom: 25px;
+        }
+
+        /* Tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: none;
+            border-bottom: 1px solid var(--cor-borda);
+            padding: 14px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        th {
+            background-color: transparent;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--cor-texto-secundario);
+            font-weight: 600;
+        }
+        td.valor, th.valor, td.centro, th.centro { text-align: center; }
+
+        /* Formulários e Botões */
+        .form-inline { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+        .form-inline input, .form-inline select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--cor-borda);
+            font-size: 14px;
+            background-color: #fafbfc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-inline input:focus, .form-inline select:focus {
+            outline: none;
+            border-color: var(--cor-primaria);
+            box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
+        }
+
+        .btn, .btn-delete {
+            border: none;
+            cursor: pointer;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn { background-color: var(--cor-primaria); color: white; }
+        .btn:hover { 
+            background-color: var(--cor-primaria-hover); 
+        }
+        .btn:active, .btn-delete:active { transform: scale(0.98); }
+
+        .btn-delete { background-color: var(--cor-perigo); color: white; }
+        .btn-delete:hover { background-color: #bf2600; }
+
+        /* Elementos Específicos */
+        #lista-cartoes { list-style: none; padding: 0; }
+        #lista-cartoes li {
+            background-color: #ebf0f5;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #lista-cartoes li strong { color: var(--cor-primaria); }
+
+        .parcela-paga { background-color: #e3fcef !important; }
+        .parcela-paga td { color: var(--cor-texto-secundario); text-decoration: line-through; }
+        
+        .input-group { display: flex; flex-direction: column; }
+        .input-group label { margin-bottom: 5px; font-size: 13px; font-weight: 500; color: var(--cor-texto-secundario); }
+        .modo-calculo { margin-bottom: 20px; }
+        .modo-calculo strong { margin-right: 10px; }
+        .modo-calculo label { margin-right: 15px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <h1>Meu Controle Financeiro</h1>
+
+    <div class="container">
+        <h2>Meus Cartões</h2>
+        <ul id="lista-cartoes"></ul>
+        <h3 style="margin-top: 20px;">Adicionar Novo Cartão</h3>
+        <div id="form-cartao" class="form-inline">
+            <input type="text" id="nome-cartao" placeholder="Nome do Cartão (ex: Nubank)">
+            <input type="number" step="0.01" id="limite-cartao" placeholder="Limite do Cartão">
+            <button id="btn-add-cartao" class="btn">Adicionar Cartão</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Adicionar Nova Compra</h2>
+        <div class="modo-calculo">
+            <strong>Calcular por:</strong>
+            <label><input type="radio" name="modo-calculo" value="total" checked> Valor Total</label>
+            <label><input type="radio" name="modo-calculo" value="parcela"> Valor da Parcela</label>
+        </div>
+        <form id="form-compra" class="form-inline">
+            <div class="input-group"><label>Cartão</label><select id="select-cartao-compra"><option value="">Selecione</option></select></div>
+            <div class="input-group"><label>Nome da Compra</label><input type="text" id="nome-compra"></div>
+            <div class="input-group" id="container-valor-total"><label>Valor Total da Compra</label><input type="number" step="0.01" id="valor-compra"></div>
+            <div class="input-group" id="container-valor-parcela" style="display: none;"><label>Valor de Cada Parcela</label><input type="number" step="0.01" id="valor-parcela"></div>
+            <div class="input-group"><label>Nº de Parcelas</label><input type="number" id="parcelas-compra" value="1"></div>
+            <button type="submit" id="btn-add-compra" class="btn">Adicionar Compra</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>Controle de Compras</h2>
+        <table id="tabela-compras">
+            <thead>
+                <tr><th>Cartão</th><th>Compra</th><th class="valor">Valor Total</th><th class="centro">Ação</th></tr>
+            </thead>
+            <tbody id="compras-corpo"></tbody>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>Controle de Parcelas</h2>
+        <table id="tabela-parcelas">
+            <thead>
+                <tr><th>Mês/Ano</th><th>Cartão</th><th>Compra</th><th>Parcela</th><th class="valor">Valor</th><th class="centro">Pago</th></tr>
+            </thead>
+            <tbody id="parcelas-corpo"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // O seu JavaScript continua exatamente o mesmo. Nenhuma alteração é necessária nele.
+        let cards = [];let installments = [];let purchaseIdCounter = 0;
+        const listaCartoesEl = document.getElementById('lista-cartoes');const selectCartaoCompraEl = document.getElementById('select-cartao-compra');const comprasCorpoEl = document.getElementById('compras-corpo');const parcelasCorpoEl = document.getElementById('parcelas-corpo');const radiosModoCalculo = document.querySelectorAll('input[name="modo-calculo"]');const containerValorTotal = document.getElementById('container-valor-total');const containerValorParcela = document.getElementById('container-valor-parcela');const formCompra = document.getElementById('form-compra');
+        function saveData(){localStorage.setItem('financeApp_cards',JSON.stringify(cards));localStorage.setItem('financeApp_installments',JSON.stringify(installments));localStorage.setItem('financeApp_purchaseIdCounter',purchaseIdCounter.toString())}
+        function loadData(){cards=JSON.parse(localStorage.getItem('financeApp_cards'))||[];installments=JSON.parse(localStorage.getItem('financeApp_installments'))||[];purchaseIdCounter=parseInt(localStorage.getItem('financeApp_purchaseIdCounter'),10)||0}
+        function renderAll(){renderCardsAndOptions();renderPurchases();renderInstallments();renderSummary()}
+        function toggleInputMode(){if(document.querySelector('input[name="modo-calculo"]:checked').value==='total'){containerValorTotal.style.display='flex';containerValorParcela.style.display='none'}else{containerValorTotal.style.display='none';containerValorParcela.style.display='flex'}}
+        function renderCardsAndOptions(){listaCartoesEl.innerHTML='';selectCartaoCompraEl.innerHTML='<option value="">Selecione um Cartão</option>';cards.forEach(card=>{const li=document.createElement('li');li.innerHTML=`<span>${card.name}</span><div style="display: flex; align-items: center; gap: 10px;"><span id="summary-card-${card.id}"></span><button class="btn-delete" data-card-id="${card.id}">Excluir</button></div>`;listaCartoesEl.appendChild(li);const option=document.createElement('option');option.value=card.id;option.textContent=card.name;selectCartaoCompraEl.appendChild(option)})}
+        function renderPurchases(){comprasCorpoEl.innerHTML='';const purchases=installments.reduce((acc,inst)=>{if(!acc[inst.purchaseId]){acc[inst.purchaseId]={cardName:inst.cardName,description:inst.description,totalValue:0,installmentsCount:0}}
+        acc[inst.purchaseId].totalValue+=inst.value;acc[inst.purchaseId].installmentsCount++;return acc},{});for(const purchaseId in purchases){const p=purchases[purchaseId];const tr=document.createElement('tr');tr.innerHTML=`<td>${p.cardName}</td><td>${p.description}</td><td class="valor">R$ ${p.totalValue.toFixed(2)}</td><td class="centro"><button class="btn-delete" data-purchase-id="${purchaseId}">Excluir</button></td>`;comprasCorpoEl.appendChild(tr)}}
+        function renderInstallments(){parcelasCorpoEl.innerHTML='';installments.sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));installments.forEach((inst,index)=>{const tr=document.createElement('tr');if(inst.paid)tr.classList.add('parcela-paga');const dueDate=new Date(inst.dueDate);const monthYear=`${(dueDate.getMonth()+1).toString().padStart(2,'0')}/${dueDate.getFullYear()}`;tr.innerHTML=`<td>${monthYear}</td><td>${inst.cardName}</td><td>${inst.description}</td><td>${inst.installmentNumber}/${inst.totalInstallments}</td><td class="valor">R$ ${inst.value.toFixed(2)}</td><td class="centro"><input type="checkbox" class="chk-paid" data-index="${index}" ${inst.paid?'checked':''}></td>`;parcelasCorpoEl.appendChild(tr)})}
+        function renderSummary(){cards.forEach(card=>{const unpaidInstallments=installments.filter(inst=>inst.cardId===card.id&&!inst.paid);const totalComprometido=unpaidInstallments.reduce((sum,inst)=>sum+inst.value,0);const limiteDisponivel=card.limit-totalComprometido;const summaryEl=document.getElementById(`summary-card-${card.id}`);if(summaryEl){summaryEl.innerHTML=`Limite Disponível: <strong>R$ ${limiteDisponivel.toFixed(2)}</strong>`}})}
+        document.getElementById('btn-add-cartao').addEventListener('click',()=>{const nomeCartao=document.getElementById('nome-cartao').value.trim();const limiteCartao=parseFloat(document.getElementById('limite-cartao').value);if(!nomeCartao||isNaN(limiteCartao)||limiteCartao<=0){alert('Por favor, preencha o nome e um limite válido para o cartão.');return}
+        cards.push({id:Date.now(),name:nomeCartao,limit:limiteCartao});document.getElementById('nome-cartao').value='';document.getElementById('limite-cartao').value='';saveData();renderAll()});
+        formCompra.addEventListener('submit',(event)=>{event.preventDefault();const cardId=parseInt(selectCartaoCompraEl.value);const nomeCompra=document.getElementById('nome-compra').value.trim();const numeroParcelas=parseInt(document.getElementById('parcelas-compra').value);const modoCalculo=document.querySelector('input[name="modo-calculo"]:checked').value;let valorTotal,valorParcela;if(modoCalculo==='total'){valorTotal=parseFloat(document.getElementById('valor-compra').value);if(isNaN(valorTotal)||valorTotal<=0){alert('Verifique o Valor Total preenchido.');return}
+        valorParcela=valorTotal/numeroParcelas}else{valorParcela=parseFloat(document.getElementById('valor-parcela').value);if(isNaN(valorParcela)||valorParcela<=0){alert('Verifique o Valor da Parcela preenchido.');return}
+        valorTotal=valorParcela*numeroParcelas}
+        if(!cardId||!nomeCompra||isNaN(numeroParcelas)||numeroParcelas<=0){alert('Por favor, preencha todos os campos da compra corretamente.');return}
+        const card=cards.find(c=>c.id===cardId);const purchaseId=++purchaseIdCounter;const today=new Date();for(let i=1;i<=numeroParcelas;i++){const dueDate=new Date(today.getFullYear(),today.getMonth()+i-1,1);installments.push({purchaseId,cardId:card.id,cardName:card.name,description:nomeCompra,installmentNumber:i,totalInstallments:numeroParcelas,value:valorParcela,dueDate:dueDate.toISOString(),paid:false})}
+        selectCartaoCompraEl.value='';document.getElementById('nome-compra').value='';document.getElementById('valor-compra').value='';document.getElementById('valor-parcela').value='';document.getElementById('parcelas-compra').value='1';saveData();renderAll()});
+        radiosModoCalculo.forEach(radio=>radio.addEventListener('change',toggleInputMode));
+        parcelasCorpoEl.addEventListener('click',(event)=>{if(event.target.classList.contains('chk-paid')){const index=event.target.dataset.index;installments[index].paid=event.target.checked;saveData();renderAll()}});
+        listaCartoesEl.addEventListener('click',(event)=>{if(event.target.dataset.cardId){if(confirm('Você tem certeza que deseja excluir este cartão? Todas as compras e parcelas associadas a ele serão perdidas.')){const cardIdToDelete=parseInt(event.target.dataset.cardId);cards=cards.filter(card=>card.id!==cardIdToDelete);installments=installments.filter(inst=>inst.cardId!==cardIdToDelete);saveData();renderAll()}}});
+        comprasCorpoEl.addEventListener('click',(event)=>{if(event.target.dataset.purchaseId){if(confirm('Você tem certeza que deseja excluir esta compra? Todas as suas parcelas serão removidas.')){const purchaseIdToDelete=parseInt(event.target.dataset.purchaseId);installments=installments.filter(inst=>inst.purchaseId!==purchaseIdToDelete);saveData();renderAll()}}});
+        document.addEventListener('DOMContentLoaded',()=>{loadData();renderAll();toggleInputMode()});
+    </script>
+</body>
+</html>
