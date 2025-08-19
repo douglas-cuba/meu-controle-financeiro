@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard de Contas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cor-fundo: #1a4331;
+            --cor-superficie: #ffffff;
+            --cor-superficie-secundaria: #f0f2f5;
+            --cor-borda: #e0e6ed;
+            --cor-texto-principal: #172b4d;
+            --cor-texto-secundario: #5e6c84;
+            --cor-texto-inverso: #ffffff;
+            --cor-perigo: #e53935;
+            --cor-sucesso: #00875a;
+            --cor-sucesso-fundo: #e3fcef;
+            --cor-alerta: #ff9800;
+            --fonte-principal: 'Inter', sans-serif;
+            --sombra-suave: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--fonte-principal);
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto-inverso);
+            padding: 25px;
+        }
+        h1, h2 { text-align: center; margin-bottom: 25px; font-weight: 600; }
+        h3 { color: var(--cor-texto-principal); margin-bottom: 15px; font-weight: 600; }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            grid-template-rows: auto auto 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: auto;
+            grid-template-areas:
+                "header-main header-side"
+                "form-conta  resumo-side"
+                "contas-main resumo-side";
+        }
+        .panel {
+            background-color: var(--cor-superficie);
+            color: var(--cor-texto-principal);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--sombra-suave);
+        }
+        #header-main { 
+            grid-area: header-main;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        #header-side { grid-area: header-side; background-color: var(--cor-superficie-secundaria); padding: 15px; }
+        #form-conta { grid-area: form-conta; }
+        #contas-main { grid-area: contas-main; }
+        #resumo-side { grid-area: resumo-side; display: flex; flex-direction: column; gap: 20px; }
+        .total-mes-item { 
+            font-size: 1.1em; 
+            text-align: center;
+            width: 100%;
+        }
+        .total-mes-item span { display: block; font-size: 0.8em; color: var(--cor-texto-secundario); margin-bottom: 5px; }
+        #total-a-pagar, #total-pago, #total-geral { 
+            font-weight: 700; 
+            font-size: 1.5em;
+        }
+        #total-a-pagar { color: var(--cor-perigo); }
+        #total-pago { color: var(--cor-sucesso); }
+        #total-geral { color: var(--cor-texto-principal); }
+        .calendar { text-align: center; }
+        .calendar-header { font-size: 1.5em; font-weight: 700; margin-bottom: 15px; }
+        .calendar-table { width: 100%; border-collapse: collapse; }
+        .calendar-table th, .calendar-table td { 
+            text-align: center;
+            padding: 2px;
+        }
+        .calendar-table th { font-size: 0.8em; color: var(--cor-texto-secundario); padding-bottom: 10px; }
+        .day-cell {
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            margin: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+        }
+        .today {
+            background-color: var(--cor-sucesso);
+            color: white;
+            font-weight: 700;
+        }
+        .resumo-categoria-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--cor-superficie-secundaria);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .month-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .month-btn {
+            background-color: var(--cor-superficie-secundaria); border: 1px solid var(--cor-borda); border-radius: 6px;
+            padding: 10px; cursor: pointer; text-align: left; transition: background-color 0.2s, color 0.2s; font-weight: 600;
+        }
+        .month-btn:hover { background-color: #d1d9e2; }
+        .month-btn.active { background-color: var(--cor-sucesso); color: white; border-color: var(--cor-sucesso); }
+        .month-btn span { display: block; font-size: 0.8em; color: var(--cor-texto-secundario); font-weight: 500; }
+        .month-btn.active span { color: rgba(255, 255, 255, 0.8); }
+        .form-inline { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+        .input-group { display: flex; flex-direction: column; flex-grow: 1; }
+        .input-group label { margin-bottom: 5px; font-size: 13px; font-weight: 500; color: var(--cor-texto-secundario); }
+        .form-inline input, .form-inline select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--cor-borda); font-size: 14px; }
+        .btn { padding: 10px 18px; background-color: var(--cor-sucesso); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn:hover { background-color: #006442; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--cor-borda); }
+        th { font-size: 12px; text-transform: uppercase; color: var(--cor-texto-secundario); }
+        .btn-delete { background-color: var(--cor-perigo); color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; font-weight: 500; transition: background-color 0.2s;}
+        .btn-delete:hover { background-color: #bf2600; }
+        .overdue-indicator { color: var(--cor-perigo); font-weight: 700; margin-right: 5px; }
+        .conta-paga { background-color: var(--cor-sucesso-fundo) !important; }
+        .conta-paga td { text-decoration: line-through; }
+    </style>
+</head>
+<body>
+    <h1>Controle de Contas Mensal</h1>
+    <main class="dashboard">
+        <section class="panel" id="header-main">
+            <h3>TOTAL DO MÊS</h3>
+            <div class="total-mes-item"><span>Contas a Pagar</span><div id="total-a-pagar">R$ 0,00</div></div>
+            <div class="total-mes-item"><span>Total de Contas Pagas</span><div id="total-pago">R$ 0,00</div></div>
+            <hr style="border: none; border-top: 1px solid var(--cor-borda); margin: 10px 0; width: 100%;">
+            <div class="total-mes-item"><span>Total de Contas</span><div id="total-geral">R$ 0,00</div></div>
+        </section>
+        <section class="panel" id="header-side"><div id="calendar-container"></div></section>
+        <section class="panel" id="form-conta">
+            <h3>Adicionar Nova Conta</h3>
+            <form id="form-conta-el" class="form-inline">
+                <div class="input-group">
+                    <label for="tipo-conta">Tipo de Conta</label>
+                    <select id="tipo-conta" required>
+                        <option value="">Selecione...</option><option value="Moradia">Moradia</option><option value="Alimentação">Alimentação</option><option value="Transporte">Transporte</option><option value="Saúde">Saúde</option><option value="Educação">Educação</option><option value="Lazer">Lazer</option><option value="Contas Fixas">Contas Fixas</option><option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="input-group"><label for="nome-conta">Nome da Conta</label><input type="text" id="nome-conta" required></div>
+                <div class="input-group"><label for="valor-conta">Valor (R$)</label><input type="number" step="0.01" id="valor-conta" required></div>
+                <div class="input-group"><label for="vencimento-conta">Primeiro Vencimento</label><input type="date" id="vencimento-conta" required></div>
+                <div class="input-group">
+                    <label for="frequencia-conta">Frequência</label>
+                    <select id="frequencia-conta"><option value="unica" selected>Única</option><option value="semanal">Semanal</option><option value="mensal">Mensal</option></select>
+                </div>
+                <div class="input-group" id="container-repeticoes" style="display: none;"><label for="numero-repeticoes">Nº de repetições</label><input type="number" id="numero-repeticoes" value="1" min="1"></div>
+                <button type="submit" class="btn">Adicionar Conta(s)</button>
+            </form>
+        </section>
+        <section class="panel" id="contas-main">
+            <h3>Minhas Contas do Mês</h3>
+            <table>
+                <thead><tr><th>Vencimento</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Pago</th><th>Ação</th></tr></thead>
+                <tbody id="contas-corpo"></tbody>
+            </table>
+        </section>
+        <aside id="resumo-side">
+            <div class="panel"><h3>Resumo por Categoria</h3><div id="resumo-categoria-body"></div></div>
+            <div class="panel"><h3>Total por Mês</h3><div class="month-grid" id="month-navigation"></div></div>
+        </aside>
+    </main>
+    <script>
+        let contas = [];
+        let displayDate = new Date();
+        const formConta = document.getElementById('form-conta-el');
+        const contasCorpoEl = document.getElementById('contas-corpo');
+        const resumoCategoriaBody = document.getElementById('resumo-categoria-body');
+        const calendarContainer = document.getElementById('calendar-container');
+        const totalAPagarEl = document.getElementById('total-a-pagar');
+        const totalPagoEl = document.getElementById('total-pago');
+        const totalGeralEl = document.getElementById('total-geral');
+        const frequenciaSelect = document.getElementById('frequencia-conta');
+        const containerRepeticoes = document.getElementById('container-repeticoes');
+        const monthNavigation = document.getElementById('month-navigation');
+        const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        function saveData() { localStorage.setItem('dashboardContas_v2', JSON.stringify(contas)); }
+        function loadData() { contas = JSON.parse(localStorage.getItem('dashboardContas_v2')) || []; }
+        function getAccountsForDisplay() {
+            const displayYear = displayDate.getFullYear();
+            const displayMonth = displayDate.getMonth();
+            const overdueAccounts = contas.filter(conta => {
+                const contaDate = new Date(conta.vencimento);
+                return !conta.pago && (contaDate.getFullYear() < displayYear || (contaDate.getFullYear() === displayYear && contaDate.getMonth() < displayMonth));
+            }).map(conta => ({ ...conta, atrasada: true }));
+            const currentMonthAccounts = contas.filter(conta => {
+                const contaDate = new Date(conta.vencimento);
+                return contaDate.getFullYear() === displayYear && contaDate.getMonth() === displayMonth;
+            });
+            return [...overdueAccounts, ...currentMonthAccounts].sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
+        }
+        function renderAll() {
+            renderCalendar();
+            const accountsToRender = getAccountsForDisplay();
+            renderTotalMes(accountsToRender);
+            renderResumoCategoria(accountsToRender);
+            renderContas(accountsToRender);
+            renderMonthNavigation();
+        }
+        function renderCalendar() {
+            const year = displayDate.getFullYear();
+            const month = displayDate.getMonth();
+            const today = new Date();
+            const isCurrentMonthReal = today.getFullYear() === year && today.getMonth() === month;
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            let tableHtml = `<div class="calendar"><div class="calendar-header">${meses[month]} / ${year}</div><table class="calendar-table"><thead><tr><th>D</th><th>S</th><th>T</th><th>Q</th><th>Q</th><th>S</th><th>S</th></tr></thead><tbody>`;
+            let date = 1;
+            for (let i = 0; i < 6; i++) {
+                tableHtml += '<tr>';
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < firstDayOfMonth) {
+                        tableHtml += '<td></td>';
+                    } else if (date > daysInMonth) {
+                        break;
+                    } else {
+                        let className = (isCurrentMonthReal && date === today.getDate()) ? 'today' : '';
+                        tableHtml += `<td><div class="day-cell ${className}">${date}</div></td>`;
+                        date++;
+                    }
+                }
+                tableHtml += '</tr>';
+                if (date > daysInMonth) break;
+            }
+            tableHtml += '</tbody></table></div>';
+            calendarContainer.innerHTML = tableHtml;
+        }
+        function renderTotalMes(accounts) {
+            const aPagar = accounts.filter(c => !c.pago).reduce((sum, c) => sum + c.valor, 0);
+            const pago = accounts.filter(c => c.pago).reduce((sum, c) => sum + c.valor, 0);
+            totalAPagarEl.textContent = `R$ ${aPagar.toFixed(2)}`;
+            totalPagoEl.textContent = `R$ ${pago.toFixed(2)}`;
+            totalGeralEl.textContent = `R$ ${(aPagar + pago).toFixed(2)}`;
+        }
+        function renderResumoCategoria(accounts) {
+            resumoCategoriaBody.innerHTML = '';
+            const resumo = accounts.reduce((acc, conta) => { if (!acc[conta.tipo]) acc[conta.tipo] = 0; acc[conta.tipo] += conta.valor; return acc; }, {});
+            if (Object.keys(resumo).length === 0) { resumoCategoriaBody.innerHTML = 'Nenhuma conta neste mês.'; return; }
+            for (const tipo in resumo) {
+                const item = document.createElement('div');
+                item.className = 'resumo-categoria-item';
+                item.innerHTML = `<span>${tipo}</span><strong>R$ ${resumo[tipo].toFixed(2)}</strong>`;
+                resumoCategoriaBody.appendChild(item);
+            }
+        }
+        function renderContas(accounts) {
+            contasCorpoEl.innerHTML = '';
+            if (accounts.length === 0) { contasCorpoEl.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhuma conta para exibir neste mês.</td></tr>'; return; }
+            accounts.forEach(conta => {
+                const tr = document.createElement('tr');
+                if (conta.pago) tr.classList.add('conta-paga');
+                const [ano, mes, dia] = conta.vencimento.split('T')[0].split('-');
+                const dataFormatada = `${dia}/${mes}/${ano}`;
+                tr.innerHTML = `
+                    <td>${dataFormatada}</td><td>${conta.tipo}</td>
+                    <td>${conta.atrasada ? '<span class="overdue-indicator">❗</span>' : ''}${conta.nome}</td>
+                    <td>R$ ${conta.valor.toFixed(2)}</td>
+                    <td><input type="checkbox" data-id="${conta.id}" ${conta.pago ? 'checked' : ''}></td>
+                    <td><button class="btn-delete" data-id="${conta.id}">Excluir</button></td>`;
+                contasCorpoEl.appendChild(tr);
+            });
+        }
+        function renderMonthNavigation() {
+            monthNavigation.innerHTML = '';
+            const currentYear = displayDate.getFullYear();
+            for (let i = 0; i < 12; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'month-btn';
+                if (i === displayDate.getMonth()) btn.classList.add('active');
+                btn.dataset.month = i;
+                const totalMes = contas.filter(c => { const contaDate = new Date(c.vencimento); return contaDate.getMonth() === i && contaDate.getFullYear() === currentYear; }).reduce((sum, c) => sum + c.valor, 0);
+                btn.innerHTML = `${meses[i]} / ${currentYear}<span>R$ ${totalMes.toFixed(2)}</span>`;
+                monthNavigation.appendChild(btn);
+            }
+        }
+        function toggleRepeticoes() { containerRepeticoes.style.display = (frequenciaSelect.value === 'unica') ? 'none' : 'flex'; }
+        formConta.addEventListener('submit', event => {
+            event.preventDefault();
+            let tipo = document.getElementById('tipo-conta').value;
+            const nome = document.getElementById('nome-conta').value.trim();
+            if (tipo === 'Outros') tipo = nome;
+            const valor = parseFloat(document.getElementById('valor-conta').value);
+            const vencimentoInicialStr = document.getElementById('vencimento-conta').value;
+            const frequencia = frequenciaSelect.value;
+            let repetirVezes = (frequencia === 'unica') ? 1 : parseInt(document.getElementById('numero-repeticoes').value) || 1;
+            const [ano, mes, dia] = vencimentoInicialStr.split('-').map(Number);
+            const dataInicial = new Date(ano, mes - 1, dia);
+            for (let i = 0; i < repetirVezes; i++) {
+                let vencimentoAtual;
+                if (frequencia === 'semanal') {
+                    vencimentoAtual = new Date(dataInicial);
+                    vencimentoAtual.setDate(dataInicial.getDate() + (i * 7));
+                } else {
+                    vencimentoAtual = new Date(dataInicial.getFullYear(), dataInicial.getMonth() + i, dataInicial.getDate());
+                }
+                const novaConta = { id: Date.now() + i, tipo, nome: repetirVezes > 1 ? `${nome} (${i + 1}/${repetirVezes})` : nome, valor, vencimento: vencimentoAtual.toISOString(), pago: false };
+                contas.push(novaConta);
+            }
+            formConta.reset();
+            toggleRepeticoes();
+            saveData();
+            renderAll();
+        });
+        contasCorpoEl.addEventListener('click', event => {
+            const id = parseInt(event.target.dataset.id);
+            if (!id) return;
+            const conta = contas.find(c => c.id === id);
+            if (event.target.tagName === 'INPUT') { if (conta) conta.pago = event.target.checked;
+            } else if (event.target.tagName === 'BUTTON') { if (confirm('Tem certeza que deseja excluir esta conta?')) { contas = contas.filter(c => c.id !== id); } }
+            saveData();
+            renderAll();
+        });
+        monthNavigation.addEventListener('click', event => {
+            const target = event.target.closest('.month-btn');
+            if (target && target.dataset.month) {
+                displayDate.setMonth(parseInt(target.dataset.month));
+                renderAll();
+            }
+        });
+        frequenciaSelect.addEventListener('change', toggleRepeticoes);
+        
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+
+            // Lógica para carregar dados fictícios apenas na primeira vez
+            if (contas.length === 0) {
+                const mockContas = [
+                    // --- Contas do Mês Passado (Julho 2025) ---
+                    { id: 1721000000001, tipo: 'Contas Fixas', nome: 'Internet VIVO', valor: 99.90, vencimento: new Date(2025, 6, 15).toISOString(), pago: true },
+                    { id: 1721000000002, tipo: 'Saúde', nome: 'Plano de Saúde', valor: 350.00, vencimento: new Date(2025, 6, 10).toISOString(), pago: false },
+
+                    // --- Contas do Mês Atual (Agosto 2025) ---
+                    { id: 1723000000001, tipo: 'Moradia', nome: 'Aluguel', valor: 1850.50, vencimento: new Date(2025, 7, 5).toISOString(), pago: true },
+                    { id: 1723000000002, tipo: 'Contas Fixas', nome: 'Conta de Luz - Enel', valor: 175.80, vencimento: new Date(2025, 7, 20).toISOString(), pago: false },
+                    { id: 1723000000003, tipo: 'Alimentação', nome: 'Supermercado do Mês', valor: 850.00, vencimento: new Date(2025, 7, 1).toISOString(), pago: true },
+                    { id: 1723000000004, tipo: 'Lazer', nome: 'Cinema - Fim de Semana', valor: 65.00, vencimento: new Date(2025, 7, 17).toISOString(), pago: false },
+                    { id: 1723000000005, tipo: 'Educação', nome: 'Academia (1/12)', valor: 120.00, vencimento: new Date(2025, 7, 10).toISOString(), pago: true },
+
+                    // --- Contas dos Próximos Meses ---
+                    { id: 1726000000001, tipo: 'Educação', nome: 'Academia (2/12)', valor: 120.00, vencimento: new Date(2025, 8, 10).toISOString(), pago: false },
+                    { id: 1726000000002, tipo: 'Moradia', nome: 'Condomínio', valor: 450.00, vencimento: new Date(2025, 8, 10).toISOString(), pago: false },
+                    { id: 1729000000001, tipo: 'Educação', nome: 'Academia (3/12)', valor: 120.00, vencimento: new Date(2025, 9, 10).toISOString(), pago: false },
+                ];
+                contas = mockContas;
+            }
+
+            // Define a data de visualização para o mês e ano atuais
+            const today = new Date();
+            displayDate.setFullYear(today.getFullYear());
+            displayDate.setMonth(today.getMonth());
+
+            renderAll();
+            toggleRepeticoes();
+        });
+    </script>
+</body>
+</html>
