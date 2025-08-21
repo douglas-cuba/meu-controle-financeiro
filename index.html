@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-g">
+    <meta charset="UTF-8">
     <title>Dashboard de Contas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +33,6 @@
         .auth-actions .btn { width: 100%; font-size: 16px; padding: 12px; }
         #auth-error-message { color: var(--cor-perigo); margin-top: 15px; text-align: center; font-weight: 500; min-height: 20px; }
         
-        /* ... (restante do CSS idêntico à versão anterior) ... */
         .dashboard { display: grid; grid-template-columns: 1.5fr 1fr; grid-template-rows: auto auto 1fr; gap: 20px; max-width: 1400px; margin: auto; grid-template-areas: "header-main header-side" "form-conta  resumo-side" "contas-main resumo-side"; }
         .panel { background-color: var(--cor-superficie); color: var(--cor-texto-principal); border-radius: 12px; padding: 25px; box-shadow: var(--sombra-suave); }
         #header-main { grid-area: header-main; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; }
@@ -100,7 +99,7 @@
             </div>
         </div>
         <main class="dashboard">
-             <section class="panel" id="header-main"><h3 >TOTAL DO MÊS</h3><div class="total-mes-item"><span>Contas a Pagar</span><div id="total-a-pagar">R$ 0,00</div></div><div class="total-mes-item"><span>Total de Contas Pagas</span><div id="total-pago">R$ 0,00</div></div><hr style="border: none; border-top: 1px solid var(--cor-borda); margin: 10px 0; width: 100%;"><div class="total-mes-item"><span>Total de Contas</span><div id="total-geral">R$ 0,00</div></div></section>
+            <section class="panel" id="header-main"><h3 >TOTAL DO MÊS</h3><div class="total-mes-item"><span>Contas a Pagar</span><div id="total-a-pagar">R$ 0,00</div></div><div class="total-mes-item"><span>Total de Contas Pagas</span><div id="total-pago">R$ 0,00</div></div><hr style="border: none; border-top: 1px solid var(--cor-borda); margin: 10px 0; width: 100%;"><div class="total-mes-item"><span>Total de Contas</span><div id="total-geral">R$ 0,00</div></div></section>
             <section class="panel" id="header-side"><div id="calendar-container"></div></section>
             <section class="panel" id="form-conta"><h3>Adicionar Nova Conta</h3><form id="form-conta-el" class="form-inline"><div class="input-group"><label for="tipo-conta">Tipo de Conta</label><select id="tipo-conta" required><option value="">Selecione...</option><option value="Moradia">Moradia</option><option value="Alimentação">Alimentação</option><option value="Transporte">Transporte</option><option value="Saúde">Saúde</option><option value="Educação">Educação</option><option value="Lazer">Lazer</option><option value="Contas Fixas">Contas Fixas</option><option value="Outros">Outros</option></select></div><div class="input-group"><label for="nome-conta">Nome da Conta</label><input type="text" id="nome-conta" required></div><div class="input-group"><label for="valor-conta">Valor (R$)</label><input type="number" step="0.01" id="valor-conta" required></div><div class="input-group"><label for="vencimento-conta">Primeiro Vencimento</label><input type="date" id="vencimento-conta" required></div><div class="input-group"><label for="frequencia-conta">Frequência</label><select id="frequencia-conta"><option value="unica" selected>Única</option><option value="semanal">Semanal</option><option value="mensal">Mensal</option></select></div><div class="input-group" id="container-repeticoes" style="display: none;"><label for="numero-repeticoes">Nº de repetições</label><input type="number" id="numero-repeticoes" value="1" min="1"></div><button type="submit" class="btn">Adicionar Conta(s)</button></form></section>
             <section class="panel" id="contas-main"><h3>Minhas Contas do Mês</h3><table><thead><tr><th>Vencimento</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Pago</th><th>Ação</th></tr></thead><tbody id="contas-corpo"></tbody></table></section>
@@ -120,8 +119,7 @@
             projectId: "controle-financeiro-cuba",
             storageBucket: "controle-financeiro-cuba.appspot.com",
             messagingSenderId: "276443249627",
-            appId: "1:276443249627:web:6b5ad0ccd4ad2faf8885fe",
-            measurementId: "G-22RNZL7Y3Y"
+            appId: "1:276443249627:web:6b5ad0ccd4ad2faf8885fe"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -130,11 +128,14 @@
         // --- ESTADO DA APLICAÇÃO ---
         let contas = [];
         let displayDate = new Date();
-        let unsubscribe = null; // Para desligar o listener do DB
+        let unsubscribe = null;
         
         // --- SELETORES DO DOM ---
         const authView = document.getElementById('auth-view');
         const appView = document.getElementById('app-view');
+        const authEmailEl = document.getElementById('auth-email');
+        const authPasswordEl = document.getElementById('auth-password');
+        const authErrorMessage = document.getElementById('auth-error-message');
         const btnLogin = document.getElementById('btn-login');
         const btnRegister = document.getElementById('btn-register');
         const btnLogout = document.getElementById('btn-logout');
@@ -152,7 +153,7 @@
         const containerRepeticoes = document.getElementById('container-repeticoes');
         const monthNavigation = document.getElementById('month-navigation');
         const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-        const mockContas = [ { id: "mock1", tipo: 'Contas Fixas', nome: 'Internet VIVO', valor: 99.90, vencimento: new Date(2025, 6, 15).toISOString(), pago: true }, { id: "mock2", tipo: 'Saúde', nome: 'Plano de Saúde', valor: 350.00, vencimento: new Date(2025, 6, 10).toISOString(), pago: false }, { id: "mock3", tipo: 'Moradia', nome: 'Aluguel', valor: 1850.50, vencimento: new Date(2025, 7, 5).toISOString(), pago: true }, { id: "mock4", tipo: 'Contas Fixas', nome: 'Conta de Luz - Enel', valor: 175.80, vencimento: new Date(2025, 7, 20).toISOString(), pago: false }];
+        const mockContas = [ { id: "mock1", tipo: 'Contas Fixas', nome: 'Internet VIVO', valor: 99.90, vencimento: new Date(2025, 6, 15), pago: true }, { id: "mock2", tipo: 'Saúde', nome: 'Plano de Saúde', valor: 350.00, vencimento: new Date(2025, 6, 10), pago: false }, { id: "mock3", tipo: 'Moradia', nome: 'Aluguel', valor: 1850.50, vencimento: new Date(2025, 7, 5), pago: true }, { id: "mock4", tipo: 'Contas Fixas', nome: 'Conta de Luz - Enel', valor: 175.80, vencimento: new Date(2025, 7, 20), pago: false }];
 
         // --- LÓGICA DE AUTENTICAÇÃO E DADOS ---
         auth.onAuthStateChanged(user => {
@@ -160,17 +161,18 @@
                 authView.style.display = 'none';
                 appView.style.display = 'block';
                 userEmailDisplay.textContent = user.email;
-                setupRealtimeListener(user.uid); // LIGA o listener do DB
+                setupRealtimeListener(user.uid);
             } else {
                 authView.style.display = 'block';
                 appView.style.display = 'none';
-                if (unsubscribe) unsubscribe(); // DESLIGA o listener do DB
+                if (unsubscribe) unsubscribe();
                 contas = [];
                 renderAll();
             }
         });
 
         function setupRealtimeListener(userId) {
+            if (unsubscribe) unsubscribe();
             const query = db.collection('contas').where('ownerId', '==', userId);
             unsubscribe = query.onSnapshot(snapshot => {
                 contas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -178,12 +180,12 @@
             });
         }
         
-        // --- FUNÇÕES DE RENDERIZAÇÃO (Idênticas, apenas redesenham o estado) ---
+        // --- FUNÇÕES DE RENDERIZAÇÃO ---
         function getAccountsForDisplay() {
             const displayYear = displayDate.getFullYear(); const displayMonth = displayDate.getMonth();
-            const overdueAccounts = contas.filter(conta => { const contaDate = new Date(conta.vencimento); return !conta.pago && (contaDate.getFullYear() < displayYear || (contaDate.getFullYear() === displayYear && contaDate.getMonth() < displayMonth)); }).map(conta => ({ ...conta, atrasada: true }));
-            const currentMonthAccounts = contas.filter(conta => { const contaDate = new Date(conta.vencimento); return contaDate.getFullYear() === displayYear && contaDate.getMonth() === displayMonth; });
-            return [...overdueAccounts, ...currentMonthAccounts].sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
+            const overdueAccounts = contas.filter(conta => { const contaDate = new Date(conta.vencimento.seconds ? conta.vencimento.toDate() : conta.vencimento); return !conta.pago && (contaDate.getFullYear() < displayYear || (contaDate.getFullYear() === displayYear && contaDate.getMonth() < displayMonth)); }).map(conta => ({ ...conta, atrasada: true }));
+            const currentMonthAccounts = contas.filter(conta => { const contaDate = new Date(conta.vencimento.seconds ? conta.vencimento.toDate() : conta.vencimento); return contaDate.getFullYear() === displayYear && contaDate.getMonth() === displayMonth; });
+            return [...overdueAccounts, ...currentMonthAccounts].sort((a, b) => new Date(a.vencimento.seconds ? a.vencimento.toDate() : a.vencimento) - new Date(b.vencimento.seconds ? b.vencimento.toDate() : b.vencimento));
         }
         function renderAll() {
             renderCalendar(); const accountsToRender = getAccountsForDisplay(); renderTotalMes(accountsToRender); renderResumoCategoria(accountsToRender); renderContas(accountsToRender); renderMonthNavigation();
@@ -228,32 +230,29 @@
             for (let i = 0; i < 12; i++) {
                 const btn = document.createElement('button'); btn.className = 'month-btn'; if (i === displayDate.getMonth()) btn.classList.add('active');
                 btn.dataset.month = i;
-                const totalMes = contas.filter(c => { const contaDate = new Date(c.vencimento); return contaDate.getMonth() === i && contaDate.getFullYear() === currentYear; }).reduce((sum, c) => sum + c.valor, 0);
+                const totalMes = contas.filter(c => { const contaDate = new Date(c.vencimento.seconds ? c.vencimento.toDate() : c.vencimento); return contaDate.getMonth() === i && contaDate.getFullYear() === currentYear; }).reduce((sum, c) => sum + c.valor, 0);
                 btn.innerHTML = `${meses[i]} / ${currentYear}<span>R$ ${totalMes.toFixed(2)}</span>`; monthNavigation.appendChild(btn);
             }
         }
         function toggleRepeticoes() { containerRepeticoes.style.display = (frequenciaSelect.value === 'unica') ? 'none' : 'flex'; }
 
         // --- MANIPULADORES DE EVENTOS ---
-        btnLogin.addEventListener('click', () => auth.signInWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(err => {alert(`Erro: ${err.message}`)}));
-        btnRegister.addEventListener('click', () => auth.createUserWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(err => {alert(`Erro: ${err.message}`)}));
+        btnLogin.addEventListener('click', () => auth.signInWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(err => {authErrorMessage.textContent = err.message}));
+        btnRegister.addEventListener('click', () => auth.createUserWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(err => {authErrorMessage.textContent = err.message}));
         btnLogout.addEventListener('click', () => auth.signOut());
         
         formConta.addEventListener('submit', event => {
             event.preventDefault();
-            const user = auth.currentUser;
-            if (!user) return alert('Você precisa estar logado para adicionar uma conta.');
-
+            const user = auth.currentUser; if (!user) return alert('Você precisa estar logado para adicionar uma conta.');
             let tipo = document.getElementById('tipo-conta').value; const nome = document.getElementById('nome-conta').value.trim();
             if (tipo === 'Outros') tipo = nome;
             const valor = parseFloat(document.getElementById('valor-conta').value); const vencimentoInicialStr = document.getElementById('vencimento-conta').value;
             const frequencia = frequenciaSelect.value; let repetirVezes = (frequencia === 'unica') ? 1 : parseInt(document.getElementById('numero-repeticoes').value) || 1;
             const [ano, mes, dia] = vencimentoInicialStr.split('-').map(Number); const dataInicial = new Date(ano, mes - 1, dia);
-
             for (let i = 0; i < repetirVezes; i++) {
                 let vencimentoAtual; if (frequencia === 'semanal') { vencimentoAtual = new Date(dataInicial); vencimentoAtual.setDate(dataInicial.getDate() + (i * 7)); } else { vencimentoAtual = new Date(dataInicial.getFullYear(), dataInicial.getMonth() + i, dataInicial.getDate()); }
                 const novaConta = { ownerId: user.uid, tipo, nome: repetirVezes > 1 ? `${nome} (${i + 1}/${repetirVezes})` : nome, valor, vencimento: vencimentoAtual, pago: false };
-                db.collection('contas').add(novaConta); // Salva no Firestore
+                db.collection('contas').add(novaConta);
             }
             formConta.reset(); toggleRepeticoes();
         });
@@ -268,8 +267,40 @@
         monthNavigation.addEventListener('click', event => {
             const target = event.target.closest('.month-btn'); if (target && target.dataset.month) { displayDate.setMonth(parseInt(target.dataset.month)); renderAll(); }
         });
-
         frequenciaSelect.addEventListener('change', toggleRepeticoes);
         
         btnClear.addEventListener('click', () => {
-             if (confirm('Você tem certeza que deseja apagar TODAS as suas contas? Esta ação não
+             if (confirm('Você tem certeza que deseja apagar TODAS as suas contas? Esta ação não pode ser desfeita.')) {
+                const user = auth.currentUser; if (!user) return;
+                db.collection('contas').where('ownerId', '==', user.uid).get().then(snapshot => {
+                    const batch = db.batch();
+                    snapshot.docs.forEach(doc => batch.delete(doc.ref));
+                    return batch.commit();
+                }).then(() => alert('Todas as suas contas foram zeradas.'));
+            }
+        });
+
+        btnReset.addEventListener('click', () => {
+            if (confirm('Deseja restaurar os dados de exemplo? TODAS as suas contas atuais serão perdidas.')) {
+                const user = auth.currentUser; if (!user) return;
+                db.collection('contas').where('ownerId', '==', user.uid).get().then(snapshot => {
+                    const batch = db.batch();
+                    snapshot.docs.forEach(doc => batch.delete(doc.ref));
+                    mockContas.forEach(conta => {
+                        const newConta = { ...conta, ownerId: user.uid };
+                        delete newConta.id;
+                        batch.set(db.collection('contas').doc(), newConta);
+                    });
+                    return batch.commit();
+                }).then(() => alert('Dados de exemplo restaurados!'));
+            }
+        });
+
+        // INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            displayDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        });
+    </script>
+</body>
+</html>
