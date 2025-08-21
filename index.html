@@ -81,6 +81,7 @@
             <div class="auth-actions">
                 <button id="btn-login" class="btn">Entrar</button>
                 <button id="btn-register" class="btn" style="background-color: var(--cor-texto-secundario);">Criar Conta</button>
+                <button id="btn-google-login" class="btn" style="background-color: #4285F4;">Entrar com Google</button>
             </div>
             <p id="auth-error-message"></p>
         </div>
@@ -124,6 +125,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        
 
         // --- ESTADO DA APLICAÇÃO ---
         let contas = [];
@@ -237,6 +239,21 @@
         function toggleRepeticoes() { containerRepeticoes.style.display = (frequenciaSelect.value === 'unica') ? 'none' : 'flex'; }
 
         // --- MANIPULADORES DE EVENTOS ---
+        const btnGoogleLogin = document.getElementById('btn-google-login');
+
+btnGoogleLogin.addEventListener('click', () => {
+  auth.signInWithPopup(provider)
+    .then((result) => {
+      // Login bem-sucedido. O usuário é automaticamente redirecionado
+      // para a tela principal pelo 'onAuthStateChanged'.
+      console.log('Login com Google bem-sucedido!', result.user);
+    })
+    .catch((error) => {
+      // Tratar erros de login.
+      authErrorMessage.textContent = error.message;
+      console.error('Erro no login com Google:', error);
+    });
+});
         btnLogin.addEventListener('click', () => auth.signInWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(err => {authErrorMessage.textContent = err.message}));
         btnRegister.addEventListener('click', () => auth.createUserWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(err => {authErrorMessage.textContent = err.message}));
         btnLogout.addEventListener('click', () => auth.signOut());
@@ -295,7 +312,7 @@
                 }).then(() => alert('Dados de exemplo restaurados!'));
             }
         });
-
+        const provider = new firebase.auth.GoogleAuthProvider();
         // INICIALIZAÇÃO
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
@@ -304,4 +321,3 @@
     </script>
 </body>
 </html>
-
