@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-g">
     <title>Dashboard de Contas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,22 +19,32 @@
         body { font-family: var(--fonte-principal); background-color: var(--cor-fundo); color: var(--cor-texto-inverso); padding: 25px; }
         h1, h2 { text-align: center; margin-bottom: 25px; font-weight: 600; }
         h3 { color: var(--cor-texto-principal); margin-bottom: 15px; font-weight: 600; }
-        .actions-container { position: absolute; top: 25px; right: 25px; display: flex; gap: 10px; }
+        
+        /* --- CABEÇALHO DO APP --- */
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative; }
+        .header-actions-left, .header-actions-right { display: flex; align-items: center; gap: 10px; }
+        .user-info { font-weight: 500; font-size: 14px; }
+
+        /* --- TELA DE LOGIN --- */
+        #auth-view { max-width: 400px; margin: 100px auto; padding: 40px; background-color: var(--cor-superficie); border-radius: 12px; color: var(--cor-texto-principal); box-shadow: var(--sombra-suave); }
+        .auth-form-container .input-group { margin-bottom: 15px; }
+        .auth-form-container input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid var(--cor-borda); font-size: 16px; }
+        .auth-actions { display: flex; flex-direction: column; gap: 10px; }
+        .auth-actions .btn { width: 100%; font-size: 16px; padding: 12px; }
+        #auth-error-message { color: var(--cor-perigo); margin-top: 15px; text-align: center; font-weight: 500; min-height: 20px; }
+        
+        /* ... (restante do CSS idêntico à versão anterior) ... */
         .dashboard { display: grid; grid-template-columns: 1.5fr 1fr; grid-template-rows: auto auto 1fr; gap: 20px; max-width: 1400px; margin: auto; grid-template-areas: "header-main header-side" "form-conta  resumo-side" "contas-main resumo-side"; }
         .panel { background-color: var(--cor-superficie); color: var(--cor-texto-principal); border-radius: 12px; padding: 25px; box-shadow: var(--sombra-suave); }
         #header-main { grid-area: header-main; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; }
         #header-side { grid-area: header-side; background-color: var(--cor-superficie-secundaria); padding: 15px; }
-        #form-conta { grid-area: form-conta; }
-        #contas-main { grid-area: contas-main; }
+        #form-conta { grid-area: form-conta; } #contas-main { grid-area: contas-main; }
         #resumo-side { grid-area: resumo-side; display: flex; flex-direction: column; gap: 20px; }
         .total-mes-item { font-size: 1.1em; text-align: center; width: 100%; }
         .total-mes-item span { display: block; font-size: 0.8em; color: var(--cor-texto-secundario); margin-bottom: 5px; }
         #total-a-pagar, #total-pago, #total-geral { font-weight: 700; font-size: 1.5em; }
-        #total-a-pagar { color: var(--cor-perigo); }
-        #total-pago { color: var(--cor-sucesso); }
-        #total-geral { color: var(--cor-texto-principal); }
-        .calendar { text-align: center; }
-        .calendar-header { font-size: 1.5em; font-weight: 700; margin-bottom: 15px; }
+        #total-a-pagar { color: var(--cor-perigo); } #total-pago { color: var(--cor-sucesso); } #total-geral { color: var(--cor-texto-principal); }
+        .calendar { text-align: center; } .calendar-header { font-size: 1.5em; font-weight: 700; margin-bottom: 15px; }
         .calendar-table { width: 100%; border-collapse: collapse; }
         .calendar-table th, .calendar-table td { text-align: center; padding: 2px; }
         .calendar-table th { font-size: 0.8em; color: var(--cor-texto-secundario); padding-bottom: 10px; }
@@ -52,73 +62,85 @@
         .input-group label { margin-bottom: 5px; font-size: 13px; font-weight: 500; color: var(--cor-texto-secundario); }
         .form-inline input, .form-inline select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--cor-borda); font-size: 14px; }
         .btn, .btn-action { padding: 10px 18px; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 14px; }
-        .btn { background-color: var(--cor-sucesso); }
-        .btn:hover { background-color: #006442; }
+        .btn { background-color: var(--cor-sucesso); } .btn:hover { background-color: #006442; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--cor-borda); }
         th { font-size: 12px; text-transform: uppercase; color: var(--cor-texto-secundario); }
-        .btn-delete { background-color: var(--cor-perigo); color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; font-weight: 500; transition: background-color 0.2s; }
-        .btn-delete:hover { background-color: #bf2600; }
-        .btn-reset { background-color: var(--cor-aviso); } /* NOVO */
-        .btn-reset:hover { background-color: #ff8f00; } /* NOVO */
+        .btn-delete { background-color: var(--cor-perigo); } .btn-delete:hover { background-color: #bf2600; }
+        .btn-reset { background-color: var(--cor-aviso); } .btn-reset:hover { background-color: #ff8f00; }
         .overdue-indicator { color: var(--cor-perigo); font-weight: 700; margin-right: 5px; }
-        .conta-paga { background-color: var(--cor-sucesso-fundo) !important; }
-        .conta-paga td { text-decoration: line-through; }
+        .conta-paga { background-color: var(--cor-sucesso-fundo) !important; } .conta-paga td { text-decoration: line-through; }
     </style>
 </head>
 <body>
-    <div class="actions-container">
-        <button id="btn-clear" class="btn-delete btn-action">Zerar Informações 🗑️</button>
-        <button id="btn-reset" class="btn-reset btn-action">Resetar Exemplo 🔄</button>
+
+    <div id="auth-view">
+        <div class="auth-form-container">
+            <h2>Controle Financeiro</h2>
+            <div class="input-group"><label for="auth-email">E-mail</label><input type="email" id="auth-email" placeholder="seu@email.com"></div>
+            <div class="input-group"><label for="auth-password">Senha</label><input type="password" id="auth-password" placeholder="••••••••"></div>
+            <div class="auth-actions">
+                <button id="btn-login" class="btn">Entrar</button>
+                <button id="btn-register" class="btn" style="background-color: var(--cor-texto-secundario);">Criar Conta</button>
+            </div>
+            <p id="auth-error-message"></p>
+        </div>
     </div>
 
-    <h1>Controle de Contas Mensal</h1>
-    
-    <main class="dashboard">
-        <section class="panel" id="header-main">
-            <h3>TOTAL DO MÊS</h3>
-            <div class="total-mes-item"><span>Contas a Pagar</span><div id="total-a-pagar">R$ 0,00</div></div>
-            <div class="total-mes-item"><span>Total de Contas Pagas</span><div id="total-pago">R$ 0,00</div></div>
-            <hr style="border: none; border-top: 1px solid var(--cor-borda); margin: 10px 0; width: 100%;">
-            <div class="total-mes-item"><span>Total de Contas</span><div id="total-geral">R$ 0,00</div></div>
-        </section>
-        <section class="panel" id="header-side"><div id="calendar-container"></div></section>
-        <section class="panel" id="form-conta">
-            <h3>Adicionar Nova Conta</h3>
-            <form id="form-conta-el" class="form-inline">
-                <div class="input-group">
-                    <label for="tipo-conta">Tipo de Conta</label>
-                    <select id="tipo-conta" required>
-                        <option value="">Selecione...</option><option value="Moradia">Moradia</option><option value="Alimentação">Alimentação</option><option value="Transporte">Transporte</option><option value="Saúde">Saúde</option><option value="Educação">Educação</option><option value="Lazer">Lazer</option><option value="Contas Fixas">Contas Fixas</option><option value="Outros">Outros</option>
-                    </select>
-                </div>
-                <div class="input-group"><label for="nome-conta">Nome da Conta</label><input type="text" id="nome-conta" required></div>
-                <div class="input-group"><label for="valor-conta">Valor (R$)</label><input type="number" step="0.01" id="valor-conta" required></div>
-                <div class="input-group"><label for="vencimento-conta">Primeiro Vencimento</label><input type="date" id="vencimento-conta" required></div>
-                <div class="input-group">
-                    <label for="frequencia-conta">Frequência</label>
-                    <select id="frequencia-conta"><option value="unica" selected>Única</option><option value="semanal">Semanal</option><option value="mensal">Mensal</option></select>
-                </div>
-                <div class="input-group" id="container-repeticoes" style="display: none;"><label for="numero-repeticoes">Nº de repetições</label><input type="number" id="numero-repeticoes" value="1" min="1"></div>
-                <button type="submit" class="btn">Adicionar Conta(s)</button>
-            </form>
-        </section>
-        <section class="panel" id="contas-main">
-            <h3>Minhas Contas do Mês</h3>
-            <table>
-                <thead><tr><th>Vencimento</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Pago</th><th>Ação</th></tr></thead>
-                <tbody id="contas-corpo"></tbody>
-            </table>
-        </section>
-        <aside id="resumo-side">
-            <div class="panel"><h3>Resumo por Categoria</h3><div id="resumo-categoria-body"></div></div>
-            <div class="panel"><h3>Total por Mês</h3><div class="month-grid" id="month-navigation"></div></div>
-        </aside>
-    </main>
+    <div id="app-view" style="display: none;">
+        <div class="app-header">
+            <div class="header-actions-left">
+                <button id="btn-clear" class="btn-delete btn-action">Zerar 🗑️</button>
+                <button id="btn-reset" class="btn-reset btn-action">Resetar 🔄</button>
+            </div>
+            <h1>Controle de Contas Mensal</h1>
+            <div class="header-actions-right">
+                <span class="user-info" id="user-email-display"></span>
+                <button id="btn-logout" class="btn-delete btn-action">Sair</button>
+            </div>
+        </div>
+        <main class="dashboard">
+             <section class="panel" id="header-main"><h3 >TOTAL DO MÊS</h3><div class="total-mes-item"><span>Contas a Pagar</span><div id="total-a-pagar">R$ 0,00</div></div><div class="total-mes-item"><span>Total de Contas Pagas</span><div id="total-pago">R$ 0,00</div></div><hr style="border: none; border-top: 1px solid var(--cor-borda); margin: 10px 0; width: 100%;"><div class="total-mes-item"><span>Total de Contas</span><div id="total-geral">R$ 0,00</div></div></section>
+            <section class="panel" id="header-side"><div id="calendar-container"></div></section>
+            <section class="panel" id="form-conta"><h3>Adicionar Nova Conta</h3><form id="form-conta-el" class="form-inline"><div class="input-group"><label for="tipo-conta">Tipo de Conta</label><select id="tipo-conta" required><option value="">Selecione...</option><option value="Moradia">Moradia</option><option value="Alimentação">Alimentação</option><option value="Transporte">Transporte</option><option value="Saúde">Saúde</option><option value="Educação">Educação</option><option value="Lazer">Lazer</option><option value="Contas Fixas">Contas Fixas</option><option value="Outros">Outros</option></select></div><div class="input-group"><label for="nome-conta">Nome da Conta</label><input type="text" id="nome-conta" required></div><div class="input-group"><label for="valor-conta">Valor (R$)</label><input type="number" step="0.01" id="valor-conta" required></div><div class="input-group"><label for="vencimento-conta">Primeiro Vencimento</label><input type="date" id="vencimento-conta" required></div><div class="input-group"><label for="frequencia-conta">Frequência</label><select id="frequencia-conta"><option value="unica" selected>Única</option><option value="semanal">Semanal</option><option value="mensal">Mensal</option></select></div><div class="input-group" id="container-repeticoes" style="display: none;"><label for="numero-repeticoes">Nº de repetições</label><input type="number" id="numero-repeticoes" value="1" min="1"></div><button type="submit" class="btn">Adicionar Conta(s)</button></form></section>
+            <section class="panel" id="contas-main"><h3>Minhas Contas do Mês</h3><table><thead><tr><th>Vencimento</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Pago</th><th>Ação</th></tr></thead><tbody id="contas-corpo"></tbody></table></section>
+            <aside id="resumo-side"><div class="panel"><h3>Resumo por Categoria</h3><div id="resumo-categoria-body"></div></div><div class="panel"><h3>Total por Mês</h3><div class="month-grid" id="month-navigation"></div></div></aside>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
 
     <script>
+        // --- CONFIGURAÇÃO DO FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0I_NgRXyRGSqiwu_x3sZizxk710q9kbI",
+            authDomain: "controle-financeiro-cuba.firebaseapp.com",
+            projectId: "controle-financeiro-cuba",
+            storageBucket: "controle-financeiro-cuba.appspot.com",
+            messagingSenderId: "276443249627",
+            appId: "1:276443249627:web:6b5ad0ccd4ad2faf8885fe",
+            measurementId: "G-22RNZL7Y3Y"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // --- ESTADO DA APLICAÇÃO ---
         let contas = [];
         let displayDate = new Date();
+        let unsubscribe = null; // Para desligar o listener do DB
+        
+        // --- SELETORES DO DOM ---
+        const authView = document.getElementById('auth-view');
+        const appView = document.getElementById('app-view');
+        const btnLogin = document.getElementById('btn-login');
+        const btnRegister = document.getElementById('btn-register');
+        const btnLogout = document.getElementById('btn-logout');
+        const userEmailDisplay = document.getElementById('user-email-display');
+        const btnReset = document.getElementById('btn-reset');
+        const btnClear = document.getElementById('btn-clear');
         const formConta = document.getElementById('form-conta-el');
         const contasCorpoEl = document.getElementById('contas-corpo');
         const resumoCategoriaBody = document.getElementById('resumo-categoria-body');
@@ -130,29 +152,41 @@
         const containerRepeticoes = document.getElementById('container-repeticoes');
         const monthNavigation = document.getElementById('month-navigation');
         const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-        const btnReset = document.getElementById('btn-reset');
-        const btnClear = document.getElementById('btn-clear'); // NOVO
-        
-        const mockContas = [
-            { id: 1721000000001, tipo: 'Contas Fixas', nome: 'Internet VIVO', valor: 99.90, vencimento: new Date(2025, 6, 15).toISOString(), pago: true }, { id: 1721000000002, tipo: 'Saúde', nome: 'Plano de Saúde', valor: 350.00, vencimento: new Date(2025, 6, 10).toISOString(), pago: false }, { id: 1723000000001, tipo: 'Moradia', nome: 'Aluguel', valor: 1850.50, vencimento: new Date(2025, 7, 5).toISOString(), pago: true }, { id: 1723000000002, tipo: 'Contas Fixas', nome: 'Conta de Luz - Enel', valor: 175.80, vencimento: new Date(2025, 7, 20).toISOString(), pago: false }, { id: 1723000000003, tipo: 'Alimentação', nome: 'Supermercado do Mês', valor: 850.00, vencimento: new Date(2025, 7, 1).toISOString(), pago: true }, { id: 1723000000004, tipo: 'Lazer', nome: 'Cinema - Fim de Semana', valor: 65.00, vencimento: new Date(2025, 7, 17).toISOString(), pago: false }, { id: 1723000000005, tipo: 'Educação', nome: 'Academia (1/12)', valor: 120.00, vencimento: new Date(2025, 7, 10).toISOString(), pago: true }, { id: 1726000000001, tipo: 'Educação', nome: 'Academia (2/12)', valor: 120.00, vencimento: new Date(2025, 8, 10).toISOString(), pago: false }, { id: 1726000000002, tipo: 'Moradia', nome: 'Condomínio', valor: 450.00, vencimento: new Date(2025, 8, 10).toISOString(), pago: false }, { id: 1729000000001, tipo: 'Educação', nome: 'Academia (3/12)', valor: 120.00, vencimento: new Date(2025, 9, 10).toISOString(), pago: false },
-        ];
+        const mockContas = [ { id: "mock1", tipo: 'Contas Fixas', nome: 'Internet VIVO', valor: 99.90, vencimento: new Date(2025, 6, 15).toISOString(), pago: true }, { id: "mock2", tipo: 'Saúde', nome: 'Plano de Saúde', valor: 350.00, vencimento: new Date(2025, 6, 10).toISOString(), pago: false }, { id: "mock3", tipo: 'Moradia', nome: 'Aluguel', valor: 1850.50, vencimento: new Date(2025, 7, 5).toISOString(), pago: true }, { id: "mock4", tipo: 'Contas Fixas', nome: 'Conta de Luz - Enel', valor: 175.80, vencimento: new Date(2025, 7, 20).toISOString(), pago: false }];
 
-        function saveData() { localStorage.setItem('dashboardContas_v3', JSON.stringify(contas)); }
-        function loadData() { contas = JSON.parse(localStorage.getItem('dashboardContas_v3')) || []; }
+        // --- LÓGICA DE AUTENTICAÇÃO E DADOS ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                authView.style.display = 'none';
+                appView.style.display = 'block';
+                userEmailDisplay.textContent = user.email;
+                setupRealtimeListener(user.uid); // LIGA o listener do DB
+            } else {
+                authView.style.display = 'block';
+                appView.style.display = 'none';
+                if (unsubscribe) unsubscribe(); // DESLIGA o listener do DB
+                contas = [];
+                renderAll();
+            }
+        });
+
+        function setupRealtimeListener(userId) {
+            const query = db.collection('contas').where('ownerId', '==', userId);
+            unsubscribe = query.onSnapshot(snapshot => {
+                contas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAll();
+            });
+        }
+        
+        // --- FUNÇÕES DE RENDERIZAÇÃO (Idênticas, apenas redesenham o estado) ---
         function getAccountsForDisplay() {
-            const displayYear = displayDate.getFullYear();
-            const displayMonth = displayDate.getMonth();
+            const displayYear = displayDate.getFullYear(); const displayMonth = displayDate.getMonth();
             const overdueAccounts = contas.filter(conta => { const contaDate = new Date(conta.vencimento); return !conta.pago && (contaDate.getFullYear() < displayYear || (contaDate.getFullYear() === displayYear && contaDate.getMonth() < displayMonth)); }).map(conta => ({ ...conta, atrasada: true }));
             const currentMonthAccounts = contas.filter(conta => { const contaDate = new Date(conta.vencimento); return contaDate.getFullYear() === displayYear && contaDate.getMonth() === displayMonth; });
             return [...overdueAccounts, ...currentMonthAccounts].sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
         }
         function renderAll() {
-            renderCalendar();
-            const accountsToRender = getAccountsForDisplay();
-            renderTotalMes(accountsToRender);
-            renderResumoCategoria(accountsToRender);
-            renderContas(accountsToRender);
-            renderMonthNavigation();
+            renderCalendar(); const accountsToRender = getAccountsForDisplay(); renderTotalMes(accountsToRender); renderResumoCategoria(accountsToRender); renderContas(accountsToRender); renderMonthNavigation();
         }
         function renderCalendar() {
             const year = displayDate.getFullYear(); const month = displayDate.getMonth(); const today = new Date();
@@ -166,122 +200,76 @@
                     if (i === 0 && j < firstDayOfMonth) { tableHtml += '<td></td>'; } else if (date > daysInMonth) { break;
                     } else { let className = (isCurrentMonthReal && date === today.getDate()) ? 'today' : ''; tableHtml += `<td><div class="day-cell ${className}">${date}</div></td>`; date++; }
                 }
-                tableHtml += '</tr>';
-                if (date > daysInMonth) break;
+                tableHtml += '</tr>'; if (date > daysInMonth) break;
             }
-            tableHtml += '</tbody></table></div>';
-            calendarContainer.innerHTML = tableHtml;
+            tableHtml += '</tbody></table></div>'; calendarContainer.innerHTML = tableHtml;
         }
         function renderTotalMes(accounts) {
-            const aPagar = accounts.filter(c => !c.pago).reduce((sum, c) => sum + c.valor, 0);
-            const pago = accounts.filter(c => c.pago).reduce((sum, c) => sum + c.valor, 0);
-            totalAPagarEl.textContent = `R$ ${aPagar.toFixed(2)}`;
-            totalPagoEl.textContent = `R$ ${pago.toFixed(2)}`;
-            totalGeralEl.textContent = `R$ ${(aPagar + pago).toFixed(2)}`;
+            const aPagar = accounts.filter(c => !c.pago).reduce((sum, c) => sum + c.valor, 0); const pago = accounts.filter(c => c.pago).reduce((sum, c) => sum + c.valor, 0);
+            totalAPagarEl.textContent = `R$ ${aPagar.toFixed(2)}`; totalPagoEl.textContent = `R$ ${pago.toFixed(2)}`; totalGeralEl.textContent = `R$ ${(aPagar + pago).toFixed(2)}`;
         }
         function renderResumoCategoria(accounts) {
-            resumoCategoriaBody.innerHTML = '';
-            const resumo = accounts.reduce((acc, conta) => { if (!acc[conta.tipo]) acc[conta.tipo] = 0; acc[conta.tipo] += conta.valor; return acc; }, {});
+            resumoCategoriaBody.innerHTML = ''; const resumo = accounts.reduce((acc, conta) => { if (!acc[conta.tipo]) acc[conta.tipo] = 0; acc[conta.tipo] += conta.valor; return acc; }, {});
             if (Object.keys(resumo).length === 0) { resumoCategoriaBody.innerHTML = 'Nenhuma conta neste mês.'; return; }
             for (const tipo in resumo) { const item = document.createElement('div'); item.className = 'resumo-categoria-item'; item.innerHTML = `<span>${tipo}</span><strong>R$ ${resumo[tipo].toFixed(2)}</strong>`; resumoCategoriaBody.appendChild(item); }
         }
         function renderContas(accounts) {
-            contasCorpoEl.innerHTML = '';
-            if (accounts.length === 0) { contasCorpoEl.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhuma conta para exibir neste mês.</td></tr>'; return; }
+            contasCorpoEl.innerHTML = ''; if (accounts.length === 0) { contasCorpoEl.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhuma conta para exibir neste mês.</td></tr>'; return; }
             accounts.forEach(conta => {
-                const tr = document.createElement('tr');
-                if (conta.pago) tr.classList.add('conta-paga');
-                const [ano, mes, dia] = conta.vencimento.split('T')[0].split('-');
-                const dataFormatada = `${dia}/${mes}/${ano}`;
+                const tr = document.createElement('tr'); if (conta.pago) tr.classList.add('conta-paga');
+                const dataObj = new Date(conta.vencimento.seconds ? conta.vencimento.toDate() : conta.vencimento);
+                const dataFormatada = dataObj.toLocaleDateString('pt-BR');
                 tr.innerHTML = `<td>${dataFormatada}</td><td>${conta.tipo}</td><td>${conta.atrasada ? '<span class="overdue-indicator">❗</span>' : ''}${conta.nome}</td><td>R$ ${conta.valor.toFixed(2)}</td><td><input type="checkbox" data-id="${conta.id}" ${conta.pago ? 'checked' : ''}></td><td><button class="btn-delete" data-id="${conta.id}">Excluir</button></td>`;
                 contasCorpoEl.appendChild(tr);
             });
         }
         function renderMonthNavigation() {
-            monthNavigation.innerHTML = '';
-            const currentYear = displayDate.getFullYear();
+            monthNavigation.innerHTML = ''; const currentYear = displayDate.getFullYear();
             for (let i = 0; i < 12; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'month-btn';
-                if (i === displayDate.getMonth()) btn.classList.add('active');
+                const btn = document.createElement('button'); btn.className = 'month-btn'; if (i === displayDate.getMonth()) btn.classList.add('active');
                 btn.dataset.month = i;
                 const totalMes = contas.filter(c => { const contaDate = new Date(c.vencimento); return contaDate.getMonth() === i && contaDate.getFullYear() === currentYear; }).reduce((sum, c) => sum + c.valor, 0);
-                btn.innerHTML = `${meses[i]} / ${currentYear}<span>R$ ${totalMes.toFixed(2)}</span>`;
-                monthNavigation.appendChild(btn);
+                btn.innerHTML = `${meses[i]} / ${currentYear}<span>R$ ${totalMes.toFixed(2)}</span>`; monthNavigation.appendChild(btn);
             }
         }
         function toggleRepeticoes() { containerRepeticoes.style.display = (frequenciaSelect.value === 'unica') ? 'none' : 'flex'; }
+
+        // --- MANIPULADORES DE EVENTOS ---
+        btnLogin.addEventListener('click', () => auth.signInWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(err => {alert(`Erro: ${err.message}`)}));
+        btnRegister.addEventListener('click', () => auth.createUserWithEmailAndPassword(document.getElementById('auth-email').value, document.getElementById('auth-password').value).catch(err => {alert(`Erro: ${err.message}`)}));
+        btnLogout.addEventListener('click', () => auth.signOut());
+        
         formConta.addEventListener('submit', event => {
             event.preventDefault();
-            let tipo = document.getElementById('tipo-conta').value;
-            const nome = document.getElementById('nome-conta').value.trim();
+            const user = auth.currentUser;
+            if (!user) return alert('Você precisa estar logado para adicionar uma conta.');
+
+            let tipo = document.getElementById('tipo-conta').value; const nome = document.getElementById('nome-conta').value.trim();
             if (tipo === 'Outros') tipo = nome;
-            const valor = parseFloat(document.getElementById('valor-conta').value);
-            const vencimentoInicialStr = document.getElementById('vencimento-conta').value;
-            const frequencia = frequenciaSelect.value;
-            let repetirVezes = (frequencia === 'unica') ? 1 : parseInt(document.getElementById('numero-repeticoes').value) || 1;
-            const [ano, mes, dia] = vencimentoInicialStr.split('-').map(Number);
-            const dataInicial = new Date(ano, mes - 1, dia);
+            const valor = parseFloat(document.getElementById('valor-conta').value); const vencimentoInicialStr = document.getElementById('vencimento-conta').value;
+            const frequencia = frequenciaSelect.value; let repetirVezes = (frequencia === 'unica') ? 1 : parseInt(document.getElementById('numero-repeticoes').value) || 1;
+            const [ano, mes, dia] = vencimentoInicialStr.split('-').map(Number); const dataInicial = new Date(ano, mes - 1, dia);
+
             for (let i = 0; i < repetirVezes; i++) {
-                let vencimentoAtual;
-                if (frequencia === 'semanal') { vencimentoAtual = new Date(dataInicial); vencimentoAtual.setDate(dataInicial.getDate() + (i * 7));
-                } else { vencimentoAtual = new Date(dataInicial.getFullYear(), dataInicial.getMonth() + i, dataInicial.getDate()); }
-                const novaConta = { id: Date.now() + i, tipo, nome: repetirVezes > 1 ? `${nome} (${i + 1}/${repetirVezes})` : nome, valor, vencimento: vencimentoAtual.toISOString(), pago: false };
-                contas.push(novaConta);
+                let vencimentoAtual; if (frequencia === 'semanal') { vencimentoAtual = new Date(dataInicial); vencimentoAtual.setDate(dataInicial.getDate() + (i * 7)); } else { vencimentoAtual = new Date(dataInicial.getFullYear(), dataInicial.getMonth() + i, dataInicial.getDate()); }
+                const novaConta = { ownerId: user.uid, tipo, nome: repetirVezes > 1 ? `${nome} (${i + 1}/${repetirVezes})` : nome, valor, vencimento: vencimentoAtual, pago: false };
+                db.collection('contas').add(novaConta); // Salva no Firestore
             }
-            formConta.reset();
-            toggleRepeticoes();
-            saveData();
-            renderAll();
+            formConta.reset(); toggleRepeticoes();
         });
+
         contasCorpoEl.addEventListener('click', event => {
-            const id = parseInt(event.target.dataset.id);
-            if (!id) return;
-            const conta = contas.find(c => c.id === id);
-            if (event.target.tagName === 'INPUT') { if (conta) conta.pago = event.target.checked;
-            } else if (event.target.tagName === 'BUTTON') { if (confirm('Tem certeza que deseja excluir esta conta?')) { contas = contas.filter(c => c.id !== id); } }
-            saveData();
-            renderAll();
+            const id = event.target.dataset.id; if (!id) return;
+            const contaRef = db.collection('contas').doc(id);
+            if (event.target.tagName === 'INPUT') { contaRef.update({ pago: event.target.checked });
+            } else if (event.target.tagName === 'BUTTON') { if (confirm('Tem certeza?')) { contaRef.delete(); } }
         });
+
         monthNavigation.addEventListener('click', event => {
-            const target = event.target.closest('.month-btn');
-            if (target && target.dataset.month) { displayDate.setMonth(parseInt(target.dataset.month)); renderAll(); }
+            const target = event.target.closest('.month-btn'); if (target && target.dataset.month) { displayDate.setMonth(parseInt(target.dataset.month)); renderAll(); }
         });
+
         frequenciaSelect.addEventListener('change', toggleRepeticoes);
-
-        // --- LÓGICA DOS BOTÕES DE AÇÃO ---
-        btnReset.addEventListener('click', () => {
-            if (confirm('Deseja restaurar os dados de exemplo? Seus dados atuais serão perdidos.')) {
-                localStorage.removeItem('dashboardContas_v3');
-                contas = mockContas;
-                const today = new Date();
-                displayDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                saveData();
-                renderAll();
-                alert('Os dados foram resetados para a visualização de exemplo!');
-            }
-        });
-
+        
         btnClear.addEventListener('click', () => {
-            if (confirm('Você tem certeza que deseja apagar TODOS os dados e começar do zero? Esta ação não pode ser desfeita.')) {
-                localStorage.removeItem('dashboardContas_v3');
-                contas = [];
-                renderAll();
-                alert('Todas as informações foram zeradas.');
-            }
-        });
-
-        // --- INICIALIZAÇÃO ---
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            if (contas.length === 0) {
-                contas = mockContas;
-            }
-            const today = new Date();
-            displayDate = new Date(today.getFullYear(), today.getMonth(), 1);
-            renderAll();
-            toggleRepeticoes();
-        });
-    </script>
-</body>
-</html>
+             if (confirm('Você tem certeza que deseja apagar TODAS as suas contas? Esta ação não
